@@ -26,12 +26,18 @@ add_executable( ${UNIT} unit_tests.cpp )
 
 # Adding specific compiler flags
 if( CMAKE_CXX_COMPILER_ID STREQUAL "MSVC" )
-    set( COMPILE_FLAGS "/Wall /Yd" )
+    set( COMPILE_FLAGS "/Wall /Yd /Oy /Gw" )
 else()
-    set( COMPILE_FLAGS "-Wall -Wextra -pedantic" )
+    if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
+        set( COMPILE_FLAGS "-Wall -Wextra -pedantic -Wno-reorder -fno-omit-frame-pointer -fdata-sections -g" )
+    else()
+        set( COMPILE_FLAGS "-Wall -Wextra -pedantic -Wno-reorder -fdata-sections" )
+    endif()
 endif()
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILE_FLAGS}" )
 
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILE_FLAGS}")
+# Format the code
+add_dependencies(${UNIT} format)
 
 # Fetching doctest
 find_package( doctest )
